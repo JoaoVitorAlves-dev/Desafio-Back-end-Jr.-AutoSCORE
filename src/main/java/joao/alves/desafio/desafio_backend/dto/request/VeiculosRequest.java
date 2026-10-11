@@ -4,12 +4,14 @@ import joao.alves.desafio.desafio_backend.domain.Veiculos;
 import joao.alves.desafio.desafio_backend.dto.response.VeiculosResponse;
 
 public record VeiculosRequest(
+        String proprietario,
         String cpf,
         String placa
 ) {
 
     public Veiculos toEntity(VeiculosRequest veiculosRequest) {
         Veiculos veiculos = new Veiculos();
+        veiculos.setProprietario(veiculosRequest.proprietario);
         veiculos.setCpf(veiculosRequest.cpf);
         veiculos.setPlaca(veiculosRequest.placa);
         veiculos.setMarca("MINI");
