@@ -1,137 +1,61 @@
-# API de Cadastro de Veículos
+# Desafio Back-end Jr. AutoSCORE
 
-API RESTful para cadastro de veículos desenvolvida com Spring Boot. Antes de persistir um veículo, a aplicação consulta uma API externa para obter os dados do veículo (marca, modelo, chassi) e a situação do licenciamento a partir da placa informada.
+## Avisos antes de começar
+- Crie um repositório publico no seu GitHub sem citar nada relacionado a AutoSCORE.
+- Faça seus commits no seu repositório.
+- Você poderá consultar o Google, Stackoverflow ou algum projeto particular na sua máquina.
 
-## Tecnologias
+### Sobre o ambiente da aplicação:
+- A linguagem de programação escolhida é Java 8 ou superior;
+- Deve ser usado o Framework Spring;
+- Recomendamos o uso dos seguintes projetos do ecossistema Spring: Spring Boot, Spring Web, Spring Data JPA;
+- Pode ser usado um dos seguintes bancos de dados: MySQL, PostgreSQL ou H2;
+- Este serviço deve ser RESTFul.
 
-- Java 21
-- Spring Boot
-- Spring Web
-- Spring Data JPA
-- H2 Database (em memória)
-- Maven
+## Objetivo
+Temos um cadastro de veículos onde precisaremos das seguintes informações: Proprietário, CPF Proprietário, Placa, Chassi, Marca, Modelo e Status do Licenciamento. CPF e Placa deverão ser únicos no sistema. Sendo assim, seu sistema deve permitir apenas um cadastro com o mesmo CPF ou Placa;
 
-## Funcionalidades
+Para um cadastro de um novo veículo, precisaremos passar apenas as seguintes informações: Proprietário, CPF e Placa. 
 
-- Cadastro de veículos informando apenas **proprietário**, **CPF** e **placa**
-- Consulta automática a uma API externa para obter **marca**, **modelo**, **chassi** e **status de licenciamento**
-- Unicidade de **CPF** e **placa** (não é possível cadastrar dois veículos com o mesmo CPF ou a mesma placa)
-- Retorno consolidado com os dados enviados e os dados obtidos da API externa
+### Payload
+Faça uma proposta de payload, se preferir, temos um exemplo aqui:
 
-## Regras de negócio
-
-1. CPF e placa devem ser únicos no sistema.
-2. Os dados do veículo são obtidos de uma API externa antes de salvar no banco.
-3. A resposta do cadastro contém os dados enviados somados aos dados da API externa.
-
-## Como executar
-
-### Pré-requisitos
-
-- JDK 21 ou superior
-- Maven (ou use o wrapper `./mvnw` incluído no projeto)
-
-### Passos
-
-```bash
-# 1. Clone o repositório
-git clone https://github.com/<seu-usuario>/<nome-do-repositorio>.git
-
-# 2. Acesse a pasta do projeto
-cd <nome-do-repositorio>
-
-# 3. Execute a aplicação
-./mvnw spring-boot:run
-```
-
-A aplicação sobe em `http://localhost:8080`.
-
-### Console do H2
-
-Como o banco é em memória, os dados são perdidos ao reiniciar a aplicação. ⚠️ Se você habilitou o console do H2, ele fica disponível em `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:<nome-do-banco>`).
-
-## Endpoints
-
-### Cadastrar veículo
-
-`POST /veiculos`
-
-**Requisição**
+POST: /veiculos
 
 ```json
 {
-  "proprietario": "José da Silva",
-  "cpf": "203.397.390-53",
-  "placa": "ABC1234"
+    "proprietario" : "José da Silva",
+    "cpf" : "203.397.390-53",
+    "placa" : "ABC1234"
 }
 ```
 
-**Resposta** — `201 Created`
+Antes de persistir os dados no banco de dados, deverá ser consultada uma API externa, onde obteremos os dados do veículo e se o mesmo está licenciado.
+Use este endereço para consultar os dados do veículo passando a placa: 
+GET (https://my.api.mockaroo.com/veiculos?key=55ad1cd0&placa=ABC1234)
+
+Depois de persistido os dados, o retorno deverá consolidar os dados enviados juntamente com os dados obtidos da API Externa.
+
+Exemplo: 
 
 ```json
-{
-  "id": 1,
-  "proprietario": "José da Silva",
-  "cpf": "203.397.390-53",
-  "placa": "ABC1234",
-  "marca": "Chevrolet",
-  "modelo": "Suburban 1500",
-  "chassi": "5TDBKRFH2FS979708",
-  "licenciado": true
+{   "id" : 1,
+    "proprietario" : "José da Silva",
+    "cpf" : "203.397.390-53",
+    "placa" : "ABC1234",
+    "marca": "Chevrolet",
+    "modelo": "Suburban 1500",
+    "chassi": "5TDBKRFH2FS979708",
+    "licenciado": true
 }
 ```
 
-⚠️ **Possíveis erros** (ajuste os status e mensagens conforme o que você implementou):
+# Avaliação
+Serão avaliados a sintaxe, as escolhas de bibliotecas e a funcionalidade da aplicação.
 
-| Situação | Status |
-|---|---|
-| Dados de entrada inválidos (campo vazio, CPF ou placa em formato inválido) | `400 Bad Request` |
-| CPF ou placa já cadastrados | `409 Conflict` |
-| Falha ao consultar a API externa | `502 Bad Gateway` |
-
-### Exemplo com cURL
-
-```bash
-curl -X POST http://localhost:8080/veiculos \
-  -H "Content-Type: application/json" \
-  -d '{"proprietario":"José da Silva","cpf":"203.397.390-53","placa":"ABC1234"}'
-```
-
-## Integração com API externa
-
-Os dados do veículo são obtidos por uma requisição `GET` informando a placa:
-
-```
-GET https://my.api.mockaroo.com/veiculos?key=<chave>&placa=ABC1234
-```
-
-A resposta da API externa é combinada com os dados enviados pelo usuário antes de ser devolvida.
-
-## Estrutura do projeto
-
-⚠️ Ajuste para refletir os pacotes reais do seu projeto.
-
-```
-src/main/java/joao/alves/desafio/desafio_backend
-├── controller     # Endpoints REST
-├── service        # Regras de negócio
-├── repository     # Acesso a dados (Spring Data JPA)
-├── model          # Entidades
-├── dto            # Objetos de requisição e resposta
-├── client         # Integração com a API externa
-└── exception      # Exceções e tratamento global de erros
-```
-
-## Diferenciais implementados
-
-⚠️ Mantenha só o que você realmente fez.
-
-- Validação dos dados de entrada (Bean Validation)
-- Tratamento global de erros com `@RestControllerAdvice`
-- Separação em camadas (controller, service, repository)
-- Uso de DTOs para entrada e saída
-- Código organizado com nomenclatura clara
-
-## Autor
-
-**João Vitor
+## O que será um Diferencial
+- Validação dos dados de entrada
+- Código limpo e organizado (nomenclatura, etc)
+- Modelagem de Dados
+- Tratamento de erros
+- Uso de Design Patterns
