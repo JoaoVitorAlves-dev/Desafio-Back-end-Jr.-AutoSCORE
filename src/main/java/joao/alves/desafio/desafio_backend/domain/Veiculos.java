@@ -11,8 +11,13 @@ public class Veiculos {
     private Long id;
 
     private String proprietario;
+
+    @Column(unique = true, nullable = false)
     private String cpf;
+
+    @Column(unique = true, nullable = false)
     private String placa;
+
     private String marca;
     private String modelo;
     private String chassi;
